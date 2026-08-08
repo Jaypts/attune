@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attune — a two-way bridge for neurodivergent &amp; neurotypical communication</title>
+<script src="https://js.puter.com/v2/"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EFF3F2; --surface:#FFFFFF; --ink:#1E2A28; --muted:#5C6B68; --line:#D8E1DE;
+    --primary:#2F6F63; --primary-ink:#F4FAF8; --accent:#D98E4A; --support:#7C6FAE; --danger:#B3552B;
+    --radius:14px; --font-display:'Fraunces', serif; --font-body:'Inter', sans-serif; --font-mono:'IBM Plex Mono', monospace;
+  }
+  [data-legible="1"]{ --font-body:'Atkinson Hyperlegible', sans-serif; }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);line-height:1.55;-webkit-font-smoothing:antialiased;}
+  a{color:var(--primary);}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+  .topbar{position:sticky;top:0;z-index:20;background:rgba(239,243,242,0.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  .topbar .wrap{display:flex;align-items:center;justify-content:space-between;padding-top:14px;padding-bottom:14px;flex-wrap:wrap;gap:10px;}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:700;font-size:20px;}
+  .topnav{display:flex;gap:22px;font-size:14px;font-weight:600;}
+  .topnav a{color:var(--ink);text-decoration:none;opacity:.75;}
+  .topnav a:hover{opacity:1;}
+  .legible-toggle{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--surface);padding:6px 12px;border-radius:999px;cursor:pointer;}
+  .legible-toggle input{accent-color:var(--primary);}
+  .hero{padding:64px 0 48px;}
+  .eyebrow{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--primary);display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+  .eyebrow::before{content:"";width:26px;height:1px;background:var(--primary);}
+  h1{font-family:var(--font-display);font-weight:600;font-size:clamp(34px,5vw,58px);line-height:1.04;margin:0 0 22px;letter-spacing:-0.01em;max-width:16ch;}
+  h1 em{font-style:italic;color:var(--primary);}
+  .lede{font-size:18px;color:var(--muted);max-width:58ch;margin:0 0 28px;}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap;}
+  .btn{font-family:var(--font-body);font-weight:600;font-size:14.5px;padding:12px 22px;border-radius:999px;border:1px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-decoration:none;}
+  .btn-primary{background:var(--primary);color:var(--primary-ink);}
+  .btn-primary:hover{background:#265c52;}
+  .btn-primary:disabled{opacity:.55;cursor:progress;}
+  .btn-ghost{background:transparent;border-color:var(--line);color:var(--ink);}
+  .btn-ghost:hover{border-color:var(--primary);color:var(--primary);}
+  .btn-small{padding:7px 13px;font-size:12.5px;}
+  section{padding:56px 0;border-top:1px solid var(--line);}
+  .section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:30px;flex-wrap:wrap;}
+  .section-num{font-family:var(--font-mono);font-size:12.5px;color:var(--muted);}
+  h2{font-family:var(--font-display);font-weight:600;font-size:clamp(24px,3vw,32px);margin:6px 0 0;}
+  .section-desc{max-width:54ch;color:var(--muted);font-size:15px;margin-top:8px;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px;}
+  .direction-toggle{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:4px;margin-bottom:18px;}
+  .direction-toggle button{border:none;background:transparent;padding:9px 16px;border-radius:999px;font-weight:600;font-size:13.5px;cursor:pointer;color:var(--muted);font-family:var(--font-body);}
+  .direction-toggle button.active{background:var(--primary);color:var(--primary-ink);}
+  .two-lane{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:stretch;}
+  @media(max-width:760px){.two-lane{grid-template-columns:1fr;}}
+  .lane{display:flex;flex-direction:column;gap:10px;}
+  .lane label{font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);}
+  textarea{width:100%;min-height:140px;resize:vertical;padding:14px;border-radius:10px;border:1px solid var(--line);font-family:var(--font-body);font-size:15px;color:var(--ink);background:var(--bg);}
+  textarea:focus, select:focus, input:focus, button:focus-visible{outline:2px solid var(--primary);outline-offset:2px;}
+  .lane-out{min-height:140px;padding:14px;border-radius:10px;border:1px dashed var(--line);background:#FBFBFA;font-size:15px;white-space:pre-wrap;}
+  .lane-out.empty{color:var(--muted);font-style:italic;}
+  .bridge-glyph{display:flex;align-items:center;justify-content:center;color:var(--accent);}
+  .controls-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:20px 0;}
+  .slider-group{display:flex;align-items:center;gap:12px;font-size:13.5px;color:var(--muted);}
+  .slider-group input[type=range]{accent-color:var(--accent);width:150px;}
+  .subtext{margin-top:18px;border-left:3px solid var(--support);padding:14px 16px;background:#F7F5FB;border-radius:0 10px 10px 0;font-size:14px;color:var(--ink);}
+  .subtext strong{color:var(--support);}
+  .phrasebook{margin-top:22px;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+  .chip{font-family:var(--font-mono);font-size:12.5px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:6px 12px;color:var(--ink);}
+  .pipeline{margin-top:18px;}
+  .pipeline summary{cursor:pointer;font-family:var(--font-mono);font-size:12.5px;color:var(--support);text-transform:uppercase;letter-spacing:.04em;}
+  .pipeline-body{margin-top:14px;display:flex;flex-direction:column;gap:10px;}
+  .step-tag{display:inline-block;font-family:var(--font-mono);font-size:11px;padding:3px 8px;border-radius:6px;background:var(--bg);border:1px solid var(--line);margin-right:8px;}
+  .candidate{border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13.5px;background:var(--bg);}
+  .candidate.chosen{border-color:var(--primary);background:#EAF4EE;}
+  .score-row{display:flex;gap:14px;margin-top:6px;font-family:var(--font-mono);font-size:11.5px;color:var(--muted);}
+  .sensation-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:18px;}
+  .sensation{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13.5px;cursor:pointer;background:var(--bg);}
+  .sensation input{accent-color:var(--support);}
+  .sensation.checked{border-color:var(--support);background:#F1EEFA;}
+  .context-row{display:flex;gap:8px;align-items:flex-start;}
+  .mic-btn{flex:none;width:44px;height:44px;border-radius:10px;border:1px solid var(--line);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .mic-btn.listening{background:#FBEAE3;border-color:var(--danger);}
+  .emotion-results{display:flex;flex-direction:column;gap:12px;margin-top:20px;}
+  .emotion-card{display:flex;justify-content:space-between;gap:16px;padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:var(--bg);}
+  .emotion-card .name{font-family:var(--font-display);font-weight:600;font-size:17px;display:flex;align-items:center;gap:8px;}
+  .badge-cv{font-family:var(--font-mono);font-size:10px;background:#EAF4EE;color:var(--primary);border:1px solid var(--primary);padding:2px 6px;border-radius:6px;}
+  .emotion-card .conf{font-family:var(--font-mono);font-size:12px;color:var(--support);}
+  .emotion-card .why{color:var(--muted);font-size:13.5px;margin-top:4px;max-width:60ch;}
+  .vocab-panel{margin-top:24px;padding-top:20px;border-top:1px dashed var(--line);}
+  .vocab-empty{color:var(--muted);font-size:13.5px;font-style:italic;}
+  .story-setup{display:grid;grid-template-columns:2fr 1fr;gap:16px;}
+  @media(max-width:760px){.story-setup{grid-template-columns:1fr;}}
+  .story-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px;}
+  @media(max-width:760px){.story-strip{grid-template-columns:repeat(2,1fr);}}
+  .story-panel{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--bg);}
+  .story-panel .art{width:100%;aspect-ratio:1/1;display:block;background:#E4EAE8;}
+  .story-panel .cap{padding:10px 12px;font-size:12.5px;color:var(--ink);}
+  .story-num{font-family:var(--font-mono);font-size:11px;color:var(--support);padding:8px 12px 0;}
+  .battery-row{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;}
+  .battery-input{flex:1;min-width:240px;}
+  .battery-scale{display:flex;gap:8px;margin-top:14px;}
+  .battery-scale button{flex:1;padding:12px 0;border-radius:8px;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-size:20px;}
+  .battery-scale button.active{border-color:var(--accent);background:#FBF0E1;}
+  .battery-chart{flex:1;min-width:260px;}
+  .battery-tip{margin-top:14px;font-size:13.5px;color:var(--muted);}
+  svg.chart{width:100%;height:120px;}
+  .status-pill{font-family:var(--font-mono);font-size:12px;padding:5px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);}
+  .status-pill.live{background:#EAF4EE;border-color:var(--primary);color:var(--primary);}
+  .status-pill.demo{background:#FBF0E1;border-color:var(--accent);color:var(--accent);}
+  .status-pill.busy{background:#F1EEFA;border-color:var(--support);color:var(--support);}
+  .arch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:6px;}
+  @media(max-width:760px){.arch-grid{grid-template-columns:1fr;}}
+  .arch-card{border:1px solid var(--line);border-radius:10px;padding:16px;background:var(--bg);}
+  .arch-card .m{font-family:var(--font-mono);font-size:11.5px;color:var(--support);}
+  .arch-card h3{font-family:var(--font-display);font-size:16px;margin:6px 0 4px;}
+  .arch-card p{font-size:13px;color:var(--muted);margin:0;}
+  footer{padding:40px 0 60px;color:var(--muted);font-size:13px;}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+  .track-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+  .tag{font-family:var(--font-mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;padding:5px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted);}
+
+  /* ---------- rehearsal simulator ---------- */
+  .scenario-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+  .scenario-chip{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:8px 14px;font-size:13px;cursor:pointer;}
+  .scenario-chip.active{background:var(--primary);color:var(--primary-ink);border-color:var(--primary);}
+  .transcript{display:flex;flex-direction:column;gap:12px;max-height:420px;overflow-y:auto;padding:6px 2px;margin-bottom:14px;}
+  .bubble{max-width:78%;padding:12px 14px;border-radius:14px;font-size:14px;line-height:1.5;}
+  .bubble.user{align-self:flex-end;background:var(--primary);color:var(--primary-ink);border-bottom-right-radius:4px;}
+  .bubble.partner{align-self:flex-start;background:var(--bg);border:1px solid var(--line);border-bottom-left-radius:4px;}
+  .bubble-wrap{display:flex;flex-direction:column;}
+  .bubble-wrap.user-wrap{align-items:flex-end;}
+  .coach-tip{max-width:78%;margin-top:6px;font-size:12.5px;color:var(--support);background:#F7F5FB;border-left:3px solid var(--support);padding:8px 10px;border-radius:0 8px 8px 0;align-self:flex-end;}
+  .send-row{display:flex;gap:10px;}
+  .send-row textarea{min-height:52px;}
+
+  /* ---------- advocacy notes ---------- */
+  .letter-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:20px;}
+  @media(max-width:760px){.letter-cols{grid-template-columns:1fr;}}
+  .letter-box{border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:16px;}
+  .letter-box h4{margin:0 0 8px;font-family:var(--font-mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);}
+  .letter-box p{font-size:14px;white-space:pre-wrap;margin:0 0 10px;}
+  .form-row{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0;}
+  .form-row label{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:6px;flex:1;min-width:160px;}
+  .form-row select{padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font-family:var(--font-body);}
+
+  /* ---------- insights ---------- */
+  .insight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;}
+  @media(max-width:760px){.insight-grid{grid-template-columns:1fr;}}
+  .stat-card{border:1px solid var(--line);border-radius:10px;padding:16px;background:var(--bg);}
+  .stat-card .v{font-family:var(--font-display);font-size:28px;font-weight:600;}
+  .stat-card .l{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;color:var(--muted);letter-spacing:.04em;}
+  .insight-notes{display:flex;flex-direction:column;gap:8px;}
+  .insight-note{font-size:13.5px;padding:10px 12px;border-radius:8px;background:#FBF0E1;border-left:3px solid var(--accent);}
+  .insight-empty{color:var(--muted);font-size:13.5px;font-style:italic;}
+
+  @media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M2 18C2 10 8 4 13 4C18 4 24 10 24 18" stroke="#2F6F63" stroke-width="2.4" stroke-linecap="round"/><circle cx="2" cy="19" r="2.4" fill="#D98E4A"/><circle cx="24" cy="19" r="2.4" fill="#7C6FAE"/></svg>
+      Attune
+    </div>
+    <div class="topnav">
+      <a href="#translator">Bridge</a>
+      <a href="#emotion">Name it</a>
+      <a href="#story">Story builder</a>
+      <a href="#rehearsal">Rehearse</a>
+      <a href="#advocacy">Notes</a>
+      <a href="#battery">Battery</a>
+      <a href="#insights">Insights</a>
+      <a href="#about">How it works</a>
+    </div>
+    <label class="legible-toggle">
+      <input type="checkbox" id="legibleToggle">
+      Hyperlegible font
+    </label>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow">IncludAI · Track 2 — AI for Connection &amp; Wellbeing</div>
+    <h1>A bridge that doesn't ask <em>you</em> to be the one who changes.</h1>
+    <p class="lede">Attune keeps a message's real meaning intact while translating only the framing — in both directions — and it helps put words to feelings when the feelings themselves are hard to locate. Runs on a multi-model Gemini 3 pipeline through Puter.js: no API key, no backend, nothing to sign up for except a free Puter account the first time you use it.</p>
+    <div class="track-tags">
+      <span class="tag">No masking required</span>
+      <span class="tag">Gemini 3 Pro + Flash pipeline</span>
+      <span class="tag">Alexithymia-aware</span>
+      <span class="tag">Multimodal: text, image, voice</span>
+    </div>
+    <div class="hero-actions" style="margin-top:26px;">
+      <a href="#translator" class="btn btn-primary">Try the bridge</a>
+      <a href="#about" class="btn btn-ghost">See the architecture</a>
+    </div>
+  </div>
+</div>
+
+<section id="translator">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">01 — The Bridge</div>
+        <h2>Draft, then verify, then explain.</h2>
+        <p class="section-desc">This isn't one prompt in, one string out. A fast model drafts three phrasing candidates at nearby directness levels; a stronger reasoning model scores each for how well it preserves your meaning versus how well it fits the intended tone, then picks and explains its choice.</p>
+      </div>
+      <span class="status-pill demo" id="statusPill">Not connected yet</span>
+    </div>
+
+    <div class="card">
+      <div class="direction-toggle" id="directionToggle">
+        <button class="active" data-dir="nd2nt">Direct → Neurotypical-legible</button>
+        <button data-dir="nt2nd">Neurotypical → Plain &amp; literal</button>
+      </div>
+
+      <div class="two-lane">
+        <div class="lane">
+          <label for="inputText" id="inputLabel">What you want to say</label>
+          <textarea id="inputText" placeholder="e.g. No. I already told you the deadline doesn't work for me.">No. I already told you the deadline doesn't work for me.</textarea>
+        </div>
+        <div class="bridge-glyph">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M4 12h16M14 6l6 6-6 6" stroke="#D98E4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="lane">
+          <label id="outputLabel">How it can land</label>
+          <div class="lane-out empty" id="outputText">Your translation will appear here.</div>
+          <button class="btn btn-ghost btn-small" id="listenBtn" style="display:none;align-self:flex-start;">🔊 Listen</button>
+        </div>
+      </div>
+
+      <div class="controls-row">
+        <div class="slider-group">
+          <span>Softer</span>
+          <input type="range" min="1" max="5" value="3" id="directnessSlider">
+          <span>Keep it blunt</span>
+        </div>
+        <button class="btn btn-primary" id="translateBtn">Translate</button>
+        <span id="loadingLabel" style="font-size:13px;color:var(--muted);display:none;">Drafting with Gemini 3.6 Flash…</span>
+      </div>
+
+      <div class="subtext" id="subtextBox" style="display:none;">
+        <strong>Why this matters:</strong> <span id="subtextContent"></span>
+      </div>
+
+      <details class="pipeline" id="pipelineDetails" style="display:none;">
+        <summary>Show how this was built (draft → verify pipeline)</summary>
+        <div class="pipeline-body" id="pipelineBody"></div>
+      </details>
+
+      <div class="phrasebook">
+        <label style="font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);">Your phrasebook (builds as you translate)</label>
+        <div class="chip-row" id="phrasebookRow">
+          <span class="vocab-empty">Nothing saved yet — translations you keep will collect here for reuse.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="emotion">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">02 — Name It</div>
+        <h2>Two independent reads, cross-checked.</h2>
+        <p class="section-desc">Built for alexithymia. Gemini 3 Pro reasons about your sensations twice — once weighting the body signals, once weighting the situation — and only labels an emotion "cross-validated" if both passes agree.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <label style="font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);">What's happening in your body right now?</label>
+      <div class="sensation-grid" id="sensationGrid"></div>
+      <div class="context-row">
+        <textarea id="emotionContext" placeholder="Optional: what's going on around this? (e.g. 'right after a meeting got rescheduled again')" style="min-height:70px;"></textarea>
+        <button class="mic-btn" id="micBtn" title="Dictate with your microphone">🎙️</button>
+      </div>
+      <div class="controls-row">
+        <button class="btn btn-primary" id="emotionBtn">Suggest what this might be</button>
+        <span id="emotionLoading" style="font-size:13px;color:var(--muted);display:none;">Running two independent passes…</span>
+      </div>
+      <div class="emotion-results" id="emotionResults"></div>
+
+      <div class="vocab-panel">
+        <label style="font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);">Your growing vocabulary</label>
+        <div class="chip-row" id="vocabRow">
+          <span class="vocab-empty">Labels you confirm will build a personal emotion vocabulary over time.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="story">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">03 — Story Builder</div>
+        <h2>Rehearse it before you're in it.</h2>
+        <p class="section-desc">Based on Social Stories — a well-established, evidence-informed technique for previewing an unfamiliar or anxiety-inducing situation with calm, descriptive, first-person framing. Gemini 3 Pro writes a 4-step script; Gemini's image model illustrates each step; Gemini TTS reads the whole thing aloud.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="story-setup">
+        <div>
+          <label style="font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);">What's the situation?</label>
+          <textarea id="storyInput" style="min-height:90px;" placeholder="e.g. There's a fire drill at school tomorrow and loud alarms are hard for me.">There's a fire drill at school tomorrow and loud alarms are hard for me.</textarea>
+        </div>
+        <div>
+          <label style="font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);">Tone</label>
+          <select id="storyTone" style="width:100%;padding:11px;border-radius:8px;border:1px solid var(--line);background:var(--bg);font-family:var(--font-body);margin-top:8px;">
+            <option value="reassuring">Reassuring</option>
+            <option value="matter-of-fact">Matter-of-fact</option>
+            <option value="encouraging">Encouraging</option>
+          </select>
+          <button class="btn btn-primary" id="storyBtn" style="width:100%;margin-top:16px;justify-content:center;">Build my story</button>
+          <span id="storyLoading" style="font-size:13px;color:var(--muted);display:block;margin-top:8px;"></span>
+        </div>
+      </div>
+      <div id="storyStripWrap" style="display:none;">
+        <div class="story-strip" id="storyStrip"></div>
+        <div class="controls-row">
+          <button class="btn btn-ghost btn-small" id="storyListenBtn">🔊 Listen to the story</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="rehearsal">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">04 — Rehearse</div>
+        <h2>Practice the conversation before you're in it.</h2>
+        <p class="section-desc">A judgment-free partner to try a hard conversation on, at your own pace, with feedback after every line. One model plays the other person; a second model — running independently, never shown to the "partner" — coaches your side in real time.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="scenario-row" id="scenarioRow">
+        <button class="scenario-chip active" data-scenario="Asking a teacher for a deadline extension, kindly but firmly">Ask a teacher for more time</button>
+        <button class="scenario-chip" data-scenario="Telling a close friend you need alone time this weekend without hurting the friendship">Tell a friend you need space</button>
+        <button class="scenario-chip" data-scenario="Declining an invitation to a loud, crowded party you don't have energy for">Decline a loud event</button>
+        <button class="scenario-chip" data-scenario="custom">Custom scenario…</button>
+      </div>
+      <textarea id="customScenario" placeholder="Describe your own scenario…" style="display:none;min-height:60px;margin-bottom:14px;"></textarea>
+
+      <div class="transcript" id="transcript"></div>
+
+      <div class="send-row">
+        <textarea id="rehearsalInput" placeholder="Type what you'd actually say…"></textarea>
+        <button class="btn btn-primary" id="sendRehearsalBtn" style="align-self:flex-end;">Send</button>
+      </div>
+      <div class="controls-row">
+        <button class="btn btn-ghost btn-small" id="resetRehearsalBtn">Start over</button>
+        <span id="rehearsalLoading" style="font-size:13px;color:var(--muted);"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="advocacy">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">05 — Notes</div>
+        <h2>Say the need plainly, in your own voice.</h2>
+        <p class="section-desc">Turn "I don't know how to ask for this" into a message you can actually send — a short version for a text or Slack message, a longer one for an email — without flattening it into generic corporate ask-speak.</p>
+      </div>
+    </div>
+    <div class="card">
+      <label style="font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);">What do you need support with?</label>
+      <textarea id="advocacyInput" placeholder="e.g. I need extended time on tests because reading takes me longer to process, and the standard time makes me rush and make mistakes I wouldn't otherwise make.">I need extended time on tests because reading takes me longer to process, and the standard time makes me rush and make mistakes I wouldn't otherwise make.</textarea>
+      <div class="form-row">
+        <label>Who is this for?
+          <select id="advocacyAudience">
+            <option>A teacher</option>
+            <option>A manager</option>
+            <option>A family member</option>
+            <option>A friend</option>
+          </select>
+        </label>
+        <label>Tone
+          <select id="advocacyTone">
+            <option>Direct</option>
+            <option>Warm</option>
+            <option>Formal</option>
+          </select>
+        </label>
+      </div>
+      <button class="btn btn-primary" id="advocacyBtn">Draft a note</button>
+      <span id="advocacyLoading" style="font-size:13px;color:var(--muted);margin-left:12px;"></span>
+      <div class="letter-cols" id="letterCols" style="display:none;">
+        <div class="letter-box"><h4>Short — text / chat message</h4><p id="letterShort"></p><button class="btn btn-ghost btn-small" data-copy="letterShort">Copy</button></div>
+        <div class="letter-box"><h4>Long — email</h4><p id="letterLong"></p><button class="btn btn-ghost btn-small" data-copy="letterLong">Copy</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="battery">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">06 — Battery</div>
+        <h2>A quiet log, not a performance review.</h2>
+        <p class="section-desc">Two taps. No streaks, no guilt copy. Just a record you can point to when you need to explain "I'm at capacity" without having to explain it in words. Deliberately not AI — not every feature needs a model.</p>
+      </div>
+    </div>
+    <div class="card battery-row">
+      <div class="battery-input">
+        <label style="font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);">Right now, my social/sensory battery is</label>
+        <div class="battery-scale" id="batteryScale">
+          <button data-v="1">🪫</button>
+          <button data-v="2">🔋</button>
+          <button data-v="3">🔋</button>
+          <button data-v="4">🔋</button>
+          <button data-v="5">⚡</button>
+        </div>
+        <div class="battery-tip" id="batteryTip">Log a check-in to see your pattern build up.</div>
+      </div>
+      <div class="battery-chart">
+        <label style="font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);">Last check-ins</label>
+        <svg class="chart" id="batteryChart" viewBox="0 0 300 120"></svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="insights">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">07 — Insights</div>
+        <h2>What your own session actually shows.</h2>
+        <p class="section-desc">No AI here — plain statistics computed live from what you've logged in this session: a rolling battery trend, a same-session anomaly check, and a simple time-window correlation between battery dips and confirmed emotions. Nothing is inferred beyond what the numbers support.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="insight-grid" id="insightGrid">
+        <div class="stat-card"><div class="v" id="statCheckins">0</div><div class="l">Battery check-ins</div></div>
+        <div class="stat-card"><div class="v" id="statTrend">—</div><div class="l">Recent trend</div></div>
+        <div class="stat-card"><div class="v" id="statVocab">0</div><div class="l">Vocabulary words confirmed</div></div>
+      </div>
+      <div class="insight-notes" id="insightNotes"><span class="insight-empty">Log a few battery check-ins and confirm an emotion or two to see patterns appear here.</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">08 — How it works</div>
+        <h2>Three models, doing different jobs.</h2>
+        <p class="section-desc">Nothing here is a single prompt wrapped in a text box. Each feature routes work to the model shaped for that job, through Puter.js — free, no API key, no backend to run.</p>
+      </div>
+    </div>
+    <div class="arch-grid">
+      <div class="arch-card">
+        <div class="m">gemini-3.6-flash</div>
+        <h3>Drafts, fast</h3>
+        <p>Generates 3 candidate phrasings per translation in the Bridge. Cheap and quick, because it's disposable — most candidates get discarded.</p>
+      </div>
+      <div class="arch-card">
+        <div class="m">gemini-3-pro-preview</div>
+        <h3>Verifies, deeply</h3>
+        <p>Scores Bridge candidates, runs the two-pass emotion cross-validation, writes the Social Story script, coaches each rehearsal line independently of the roleplay partner, and drafts self-advocacy notes.</p>
+      </div>
+      <div class="arch-card">
+        <div class="m">gemini-3.1-flash-image + TTS</div>
+        <h3>Shows and speaks</h3>
+        <p>Illustrates each Social Story panel and narrates the Bridge output and story aloud, for anyone who reads better by ear or needs the reading-fatigue relief.</p>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-top:20px;max-width:64ch;"><strong>Insights</strong> runs on no model at all — it's plain statistics (rolling averages, a z-score anomaly check, a time-window correlation) computed live from what you've actually logged this session, deliberately kept free of AI inference so it never claims more than the numbers support. Everything else degrades gracefully: if Puter or the model call fails or is declined, each feature falls back to transparent, rule-based local logic (see <code>index.html</code>) so the app is always demoable, and the status pill always tells you which mode is active.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Built for IncludAI × Stanford NNEA, 2026.</span>
+    <span>Attune is a prototype — Jay Patel©.</span>
+  </div>
+</footer>
+
+<script>
+/* =========================================================
+   STATE
+========================================================= */
+let puterReady = null; // null=unknown, true=connected, false=failed
+const phrasebook = [];
+const vocab = [];       // {word, t}
+const batteryLog = [];  // {t, v}
+const rehearsal = { scenario: 'Asking a teacher for a deadline extension, kindly but firmly', turns: [] }; // {role:'user'|'partner', text, tip?}
+
+const MODEL_DRAFT = 'gemini-3.6-flash';
+const MODEL_REASON = 'gemini-3-pro-preview';
+const MODEL_IMAGE = 'gemini-3.1-flash-image-preview';
+
+const SENSATIONS = [
+  'Tight chest','Racing heart','Heavy limbs','Foggy head','Buzzing skin',
+  'Knot in stomach','Clenched jaw','Restless legs','Hot face','Numb / far away',
+  'Shallow breath',"Can't sit still"
+];
+
+/* =========================================================
+   INIT
+========================================================= */
+function init(){
+  document.getElementById('legibleToggle').addEventListener('change', e=>{
+    document.body.setAttribute('data-legible', e.target.checked ? '1':'0');
+  });
+
+  document.querySelectorAll('#directionToggle button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('#directionToggle button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      window.__direction = btn.dataset.dir;
+      const inLabel = document.getElementById('inputLabel');
+      const outLabel = document.getElementById('outputLabel');
+      if(window.__direction==='nd2nt'){
+        inLabel.textContent = 'What you want to say';
+        outLabel.textContent = 'How it can land';
+        document.getElementById('inputText').placeholder = "e.g. No. I already told you the deadline doesn't work for me.";
+      } else {
+        inLabel.textContent = 'What was said to you';
+        outLabel.textContent = 'What it plainly means';
+        document.getElementById('inputText').placeholder = "e.g. Let's circle back on this when things calm down a bit.";
+      }
+    });
+  });
+  window.__direction = 'nd2nt';
+
+  document.getElementById('translateBtn').addEventListener('click', runTranslate);
+  document.getElementById('listenBtn').addEventListener('click', ()=> speak(document.getElementById('outputText').textContent));
+
+  const grid = document.getElementById('sensationGrid');
+  SENSATIONS.forEach(s=>{
+    const label = document.createElement('label');
+    label.className='sensation';
+    label.innerHTML = `<input type="checkbox" value="${s}"> ${s}`;
+    label.querySelector('input').addEventListener('change', e=>{
+      label.classList.toggle('checked', e.target.checked);
+    });
+    grid.appendChild(label);
+  });
+  document.getElementById('emotionBtn').addEventListener('click', runEmotionMap);
+  setupMic();
+
+  document.getElementById('storyBtn').addEventListener('click', runStoryBuilder);
+  document.getElementById('storyListenBtn').addEventListener('click', ()=> speak(window.__storyNarration || ''));
+
+  document.querySelectorAll('.scenario-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      document.querySelectorAll('.scenario-chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      const custom = document.getElementById('customScenario');
+      if(chip.dataset.scenario === 'custom'){ custom.style.display='block'; rehearsal.scenario = custom.value || 'a difficult conversation'; }
+      else { custom.style.display='none'; rehearsal.scenario = chip.dataset.scenario; }
+      resetRehearsal();
+    });
+  });
+  document.getElementById('customScenario').addEventListener('input', e=>{ rehearsal.scenario = e.target.value || 'a difficult conversation'; });
+  document.getElementById('sendRehearsalBtn').addEventListener('click', runRehearsalSend);
+  document.getElementById('resetRehearsalBtn').addEventListener('click', resetRehearsal);
+
+  document.getElementById('advocacyBtn').addEventListener('click', runAdvocacyLetter);
+  document.querySelectorAll('[data-copy]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const el = document.getElementById(btn.dataset.copy);
+      navigator.clipboard?.writeText(el.textContent).then(()=>{
+        const orig = btn.textContent; btn.textContent='Copied'; setTimeout(()=>btn.textContent=orig, 1200);
+      });
+    });
+  });
+
+  document.querySelectorAll('#batteryScale button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('#batteryScale button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      logBattery(parseInt(btn.dataset.v,10));
+    });
+  });
+  drawBatteryChart();
+  renderTranscript();
+  recomputeInsights();
+  setStatus('idle');
+}
+
+function setStatus(mode){
+  const pill = document.getElementById('statusPill');
+  if(mode==='busy'){ pill.textContent='Connecting to Gemini 3…'; pill.className='status-pill busy'; }
+  else if(mode==='live'){ pill.textContent='Live — Gemini 3 via Puter.js'; pill.className='status-pill live'; }
+  else if(mode==='demo'){ pill.textContent='Demo mode — local fallback active'; pill.className='status-pill demo'; }
+  else { pill.textContent='Not connected yet'; pill.className='status-pill demo'; }
+}
+
+/* =========================================================
+   PUTER.JS HELPERS
+========================================================= */
+function getChatText(resp){
+  if(typeof resp === 'string') return resp;
+  if(resp?.message?.content){
+    const c = resp.message.content;
+    if(typeof c === 'string') return c;
+    if(Array.isArray(c)) return c.map(p=>p.text||'').join('\n');
+  }
+  if(resp?.text) return resp.text;
+  if(resp?.toString) return resp.toString();
+  return '';
+}
+
+function getImageUrl(resp){
+  try{
+    if(resp?.message?.images?.[0]?.image_url?.url) return resp.message.images[0].image_url.url;
+    if(resp?.images?.[0]?.image_url?.url) return resp.images[0].image_url.url;
+    if(resp?.image?.image_url?.url) return resp.image.image_url.url;
+  } catch(e){}
+  return null;
+}
+
+async function puterJSON(model, prompt){
+  setStatus('busy');
+  const messages = [{role:'user', content: prompt}];
+  const resp = await puter.ai.chat(messages, {model});
+  setStatus('live');
+  const raw = getChatText(resp);
+  const start = raw.indexOf('{')>=0 && (raw.indexOf('[')<0 || raw.indexOf('{')<raw.indexOf('[')) ? raw.indexOf('{') : raw.indexOf('[');
+  const isArray = raw[start] === '[';
+  const end = isArray ? raw.lastIndexOf(']') : raw.lastIndexOf('}');
+  return JSON.parse(raw.slice(start, end+1));
+}
+
+async function puterImage(prompt){
+  setStatus('busy');
+  const resp = await puter.ai.chat(prompt, {model: MODEL_IMAGE});
+  setStatus('live');
+  return getImageUrl(resp);
+}
+
+function speak(text){
+  if(!text) return;
+  if(window.puter && puter.ai && puter.ai.txt2speech){
+    puter.ai.txt2speech(text, {provider:'gemini', voice:'Puck'})
+      .then(audio=> audio.play())
+      .catch(()=> speakFallback(text));
+  } else {
+    speakFallback(text);
+  }
+}
+function speakFallback(text){
+  if('speechSynthesis' in window){
+    const u = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.speak(u);
+  }
+}
+
+function setupMic(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const btn = document.getElementById('micBtn');
+  if(!SR){ btn.style.display='none'; return; }
+  const rec = new SR();
+  rec.continuous = false; rec.interimResults = false; rec.lang = 'en-US';
+  let listening = false;
+  btn.addEventListener('click', ()=>{
+    if(listening){ rec.stop(); return; }
+    rec.start(); listening = true; btn.classList.add('listening');
+  });
+  rec.addEventListener('result', e=>{
+    const text = e.results[0][0].transcript;
+    const ta = document.getElementById('emotionContext');
+    ta.value = ta.value ? ta.value + ' ' + text : text;
+  });
+  rec.addEventListener('end', ()=>{ listening=false; btn.classList.remove('listening'); });
+  rec.addEventListener('error', ()=>{ listening=false; btn.classList.remove('listening'); });
+}
+
+/* =========================================================
+   01 — BRIDGE: draft (flash) -> verify (pro) pipeline
+========================================================= */
+async function runTranslate(){
+  const input = document.getElementById('inputText').value.trim();
+  if(!input) return;
+  const directness = parseInt(document.getElementById('directnessSlider').value,10);
+  const direction = window.__direction;
+  const outBox = document.getElementById('outputText');
+  const subtextBox = document.getElementById('subtextBox');
+  const subtextContent = document.getElementById('subtextContent');
+  const loading = document.getElementById('loadingLabel');
+  const pipelineDetails = document.getElementById('pipelineDetails');
+  const pipelineBody = document.getElementById('pipelineBody');
+  const listenBtn = document.getElementById('listenBtn');
+
+  loading.style.display='inline'; loading.textContent = 'Drafting with Gemini 3.6 Flash…';
+  outBox.classList.add('empty'); outBox.textContent = '...';
+  pipelineDetails.style.display='none'; pipelineBody.innerHTML='';
+  listenBtn.style.display='none';
+
+  try{
+    if(typeof puter === 'undefined') throw new Error('Puter.js not loaded');
+
+    if(direction==='nd2nt'){
+      const draftPrompt = `You generate literal, meaning-preserving phrasing variants for a neurodivergent-to-neurotypical communication bridge. Never soften away the actual content, request, or boundary. Given the message and a target directness (1=very softened,5=kept blunt), produce exactly 3 candidates at directness levels ${Math.max(1,directness-1)}, ${directness}, ${Math.min(5,directness+1)}. Respond ONLY as JSON: {"candidates":[{"directness":number,"text":"..."}]}\n\nMessage: "${input}"`;
+      const draft = await puterJSON(MODEL_DRAFT, draftPrompt);
+      loading.textContent = 'Verifying with Gemini 3 Pro…';
+
+      const verifyPrompt = `You verify communication-bridge translations for a neurodivergent-to-neurotypical audience. Original message: "${input}". Requested directness: ${directness}/5. Candidates: ${JSON.stringify(draft.candidates)}. For each candidate, score meaning_preserved (0-100, does it keep the original request/content/boundary intact) and tone_fit (0-100, how well it matches the requested directness and would land as intended with a neurotypical reader). Pick the best overall (chosen_index). Write a neutral, non-blaming 1-2 sentence "subtext" explaining the likely friction point between the original phrasing and a neurotypical listener's expectations. Write a 1-sentence "reasoning" for your pick referencing the scores. Respond ONLY as JSON: {"scored":[{"text":"...","meaning_preserved":number,"tone_fit":number}],"chosen_index":number,"subtext":"...","reasoning":"..."}`;
+      const verify = await puterJSON(MODEL_REASON, verifyPrompt);
+
+      const chosen = verify.scored[verify.chosen_index] || verify.scored[0];
+      outBox.textContent = chosen.text; outBox.classList.remove('empty');
+      subtextContent.textContent = verify.subtext || ''; subtextBox.style.display='block';
+      listenBtn.style.display='inline-flex';
+
+      pipelineBody.innerHTML = `
+        <div><span class="step-tag">1 · draft (flash)</span>3 candidates generated at directness ${Math.max(1,directness-1)}–${Math.min(5,directness+1)}</div>
+        ${verify.scored.map((s,i)=>`
+          <div class="candidate ${i===verify.chosen_index?'chosen':''}">
+            ${i===verify.chosen_index?'<strong>Chosen — </strong>':''}${escapeHtml(s.text)}
+            <div class="score-row"><span>meaning preserved: ${s.meaning_preserved}</span><span>tone fit: ${s.tone_fit}</span></div>
+          </div>`).join('')}
+        <div><span class="step-tag">2 · verify (pro)</span>${escapeHtml(verify.reasoning || '')}</div>
+      `;
+      pipelineDetails.style.display='block';
+
+      if(!phrasebook.find(p=>p.input===input)){ phrasebook.push({input, translation:chosen.text}); renderPhrasebook(); }
+    } else {
+      const decodePrompt = `Decode this neurotypical/indirect message into its plain, literal meaning for a neurodivergent reader. Don't add judgment toward either communication style. Respond ONLY as JSON: {"translation":"...","subtext":"1-2 sentences on why the original phrasing was indirect and what's implied"}\n\nMessage: "${input}"`;
+      const result = await puterJSON(MODEL_REASON, decodePrompt);
+      outBox.textContent = result.translation; outBox.classList.remove('empty');
+      subtextContent.textContent = result.subtext || ''; subtextBox.style.display='block';
+      listenBtn.style.display='inline-flex';
+      if(!phrasebook.find(p=>p.input===input)){ phrasebook.push({input, translation:result.translation}); renderPhrasebook(); }
+    }
+  } catch(err){
+    setStatus('demo');
+    const r = localTranslate(input, direction, directness);
+    outBox.textContent = r.translation; outBox.classList.remove('empty');
+    subtextContent.textContent = r.subtext; subtextBox.style.display='block';
+    listenBtn.style.display='inline-flex';
+  } finally {
+    loading.style.display='none';
+  }
+}
+
+function localTranslate(text, dir, directness){
+  if(dir==='nd2nt'){
+    const softeners = ['I want to be upfront that ', "Just so it's clear: ", ''];
+    const cushions = [', if that works on your end', ', thanks for understanding', ''];
+    const idx = Math.max(0, 5-directness);
+    const softener = softeners[Math.min(idx, softeners.length-1)];
+    const cushion = cushions[Math.min(idx, cushions.length-1)];
+    let out = softener + text.charAt(0).toLowerCase() + text.slice(1);
+    if(directness < 4) out += cushion;
+    return { translation: out, subtext: 'The original phrasing is accurate and not rude — it may just read as abrupt to someone expecting a softening frame first. This local fallback keeps your meaning intact and adds a light frame.' };
+  } else {
+    const map = [
+      [/circle back|touch base|revisit/i, 'talk about this again later'],
+      [/when things (calm down|settle)/i, 'at an unspecified later time'],
+      [/it is what it is/i, 'nothing is going to change'],
+      [/no worries|no pressure/i, 'this is optional, but there may be a soft expectation attached'],
+      [/let'?s (see|find a time)/i, 'this has not actually been scheduled yet'],
+    ];
+    let out = text;
+    map.forEach(([re, plain])=>{ if(re.test(text)) out = out.replace(re, plain); });
+    if(out === text){ out = 'This reads as fairly literal already — likely close to: "' + text + '"'; }
+    return { translation: out, subtext: "Indirect phrasing like this usually carries an implied next step that isn't stated outright — a social convention that assumes shared inference." };
+  }
+}
+
+function renderPhrasebook(){
+  const row = document.getElementById('phrasebookRow');
+  row.innerHTML = '';
+  phrasebook.slice(-8).forEach(p=>{
+    const chip = document.createElement('span');
+    chip.className='chip'; chip.title = p.translation;
+    chip.textContent = p.input.length>34 ? p.input.slice(0,34)+'…' : p.input;
+    row.appendChild(chip);
+  });
+}
+
+/* =========================================================
+   02 — NAME IT: two-pass ensemble
+========================================================= */
+async function runEmotionMap(){
+  const checked = Array.from(document.querySelectorAll('#sensationGrid input:checked')).map(i=>i.value);
+  const context = document.getElementById('emotionContext').value.trim();
+  if(checked.length===0) return;
+  const resultsBox = document.getElementById('emotionResults');
+  const loading = document.getElementById('emotionLoading');
+  resultsBox.innerHTML = '';
+  loading.style.display = 'inline';
+
+  let merged;
+  try{
+    if(typeof puter === 'undefined') throw new Error('Puter.js not loaded');
+    const base = `Sensations: ${checked.join(', ')}.${context ? ' Context: '+context : ''}`;
+    const sysA = `You help people with alexithymia find candidate emotion labels. Weight the physical body sensations most heavily over any stated context. Never diagnose. Respond ONLY as JSON array of up to 4: [{"emotion":"...","confidence":0-1,"why":"one sentence grounded in the sensations","coping":"one small concrete next action"}]\n\n${base}`;
+    const sysB = `You help people with alexithymia find candidate emotion labels. Weight the situational context most heavily, using the sensations as supporting evidence. Never diagnose. Respond ONLY as JSON array of up to 4: [{"emotion":"...","confidence":0-1,"why":"one sentence grounded in the context","coping":"one small concrete next action"}]\n\n${base}`;
+
+    const [passA, passB] = await Promise.all([
+      puterJSON(MODEL_REASON, sysA),
+      puterJSON(MODEL_REASON, sysB)
+    ]);
+    merged = mergeEmotionPasses(passA, passB);
+  } catch(err){
+    setStatus('demo');
+    merged = localEmotionMap(checked);
+  } finally {
+    loading.style.display = 'none';
+  }
+  renderEmotionResults(merged);
+}
+
+function mergeEmotionPasses(a, b){
+  const norm = s => s.trim().toLowerCase();
+  const map = {};
+  a.forEach(item=>{ map[norm(item.emotion)] = { emotion:item.emotion, confidences:[item.confidence], whys:[item.why], coping:item.coping }; });
+  b.forEach(item=>{
+    const k = norm(item.emotion);
+    if(map[k]){ map[k].confidences.push(item.confidence); map[k].whys.push(item.why); }
+    else { map[k] = { emotion:item.emotion, confidences:[item.confidence], whys:[item.why], coping:item.coping }; }
+  });
+  return Object.values(map).map(v=>({
+    emotion: v.emotion,
+    crossValidated: v.confidences.length > 1,
+    confidence: v.confidences.length > 1
+      ? (v.confidences[0]+v.confidences[1])/2
+      : v.confidences[0]*0.8,
+    why: v.whys[0],
+    coping: v.coping
+  })).sort((x,y)=> (y.crossValidated - x.crossValidated) || (y.confidence-x.confidence)).slice(0,5);
+}
+
+const SENSATION_MAP = {
+  'Tight chest': [['Anxiety',0.7],['Grief',0.4],['Anger',0.3]],
+  'Racing heart': [['Anxiety',0.75],['Excitement',0.4],['Fear',0.5]],
+  'Heavy limbs': [['Sadness',0.65],['Exhaustion / burnout',0.6]],
+  'Foggy head': [['Overwhelm',0.7],['Exhaustion / burnout',0.5]],
+  'Buzzing skin': [['Overstimulation',0.75],['Anxiety',0.4]],
+  'Knot in stomach': [['Dread',0.6],['Anxiety',0.55]],
+  'Clenched jaw': [['Anger',0.6],['Frustration',0.55]],
+  'Restless legs': [['Anxiety',0.5],['Restlessness',0.6]],
+  'Hot face': [['Embarrassment',0.6],['Anger',0.45]],
+  'Numb / far away': [['Dissociation / shutdown',0.7],['Sadness',0.3]],
+  'Shallow breath': [['Anxiety',0.65],['Overstimulation',0.4]],
+  "Can't sit still": [['Anxiety',0.4],['Restlessness',0.65]]
+};
+function localEmotionMap(checked){
+  const tally = {};
+  checked.forEach(s=>{ (SENSATION_MAP[s]||[]).forEach(([emo,w])=>{ tally[emo]=(tally[emo]||0)+w; }); });
+  const entries = Object.entries(tally).sort((a,b)=>b[1]-a[1]).slice(0,4);
+  const max = entries.length ? entries[0][1] : 1;
+  const copingFor = {
+    'Anxiety':'Try one slow exhale twice as long as your inhale, four times.',
+    'Overstimulation':'If you can, reduce one input right now — lights, sound, or a screen.',
+    'Overwhelm':'Pick the single smallest next step and do only that.',
+    'Exhaustion / burnout':'This may be a signal to rest, not push through.',
+    'Sadness':'Naming it out loud or in writing, even one word, can lower its intensity.',
+    'Anger':'Give it somewhere to go before responding to anyone.',
+    'Grief':'No fix needed right now — noting "this is grief" is enough.',
+    'Dread':'Ask: is this about something specific or something unclear?',
+    'Frustration':'Identify the one blocker causing this, separate from everything else.',
+    'Embarrassment':'This feeling is usually shorter-lived than it seems.',
+    'Dissociation / shutdown':'Try naming 3 things you can see, right now.',
+    'Restlessness':'Movement — even small — can help this pass.'
+  };
+  return entries.map(([emo,w])=>({
+    emotion: emo, crossValidated:false, confidence: Math.min(0.9, w/max*0.8),
+    why: `Reported alongside: ${checked.slice(0,3).join(', ')}${checked.length>3?', …':''}.`,
+    coping: copingFor[emo] || 'Naming it is the first useful step.'
+  }));
+}
+
+function renderEmotionResults(results){
+  const box = document.getElementById('emotionResults');
+  box.innerHTML = '';
+  if(!results || results.length===0){
+    box.innerHTML = '<span style="color:var(--muted);font-size:13.5px;">No strong candidates yet — try adding more detail.</span>';
+    return;
+  }
+  results.forEach(r=>{
+    const div = document.createElement('div');
+    div.className='emotion-card';
+    div.innerHTML = `
+      <div>
+        <div class="name">${escapeHtml(r.emotion)} ${r.crossValidated?'<span class="badge-cv">cross-validated</span>':''}</div>
+        <div class="why">${escapeHtml(r.why || '')}</div>
+        <div class="why" style="color:var(--support);margin-top:6px;"><strong>Try:</strong> ${escapeHtml(r.coping || '')}</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="conf">${Math.round((r.confidence||0)*100)}% match</div>
+        <button class="btn btn-ghost btn-small" style="margin-top:8px;" data-emo="${escapeHtml(r.emotion)}">This is it</button>
+      </div>`;
+    div.querySelector('button').addEventListener('click', ()=>{
+      if(!vocab.find(v=>v.word===r.emotion)){ vocab.push({word:r.emotion, t:Date.now()}); renderVocab(); recomputeInsights(); }
+    });
+    box.appendChild(div);
+  });
+}
+function renderVocab(){
+  const row = document.getElementById('vocabRow');
+  row.innerHTML='';
+  if(vocab.length===0){ row.innerHTML = '<span class="vocab-empty">Labels you confirm will build a personal emotion vocabulary over time.</span>'; return; }
+  vocab.forEach(v=>{ const chip=document.createElement('span'); chip.className='chip'; chip.textContent=v.word; row.appendChild(chip); });
+}
+
+/* =========================================================
+   03 — SOCIAL STORY BUILDER: script (pro) -> illustrations (image) -> narration (tts)
+========================================================= */
+async function runStoryBuilder(){
+  const situation = document.getElementById('storyInput').value.trim();
+  const tone = document.getElementById('storyTone').value;
+  if(!situation) return;
+  const loading = document.getElementById('storyLoading');
+  const wrap = document.getElementById('storyStripWrap');
+  const strip = document.getElementById('storyStrip');
+  loading.textContent = 'Writing the script with Gemini 3 Pro…';
+  strip.innerHTML = ''; wrap.style.display='none';
+
+  let script;
+  try{
+    if(typeof puter === 'undefined') throw new Error('Puter.js not loaded');
+    const scriptPrompt = `Write a 4-step Social Story (Carol Gray method) to help a neurodivergent person prepare for this situation: "${situation}". Tone: ${tone}. Rules: first-person "I" statements, descriptive and affirmative sentences, no directive/commanding language, calm and concrete, each step 1-2 short sentences. Also give each step a short "image_prompt" describing a simple, calm, uncluttered flat illustration (no text in the image) for that step. Respond ONLY as JSON: {"title":"...","steps":[{"caption":"...","image_prompt":"..."}, ...4 total]}`;
+    script = await puterJSON(MODEL_REASON, scriptPrompt);
+  } catch(err){
+    setStatus('demo');
+    script = localSocialStory(situation, tone);
+  }
+
+  window.__storyNarration = script.title + '. ' + script.steps.map(s=>s.caption).join(' ');
+  wrap.style.display='block';
+
+  for(let i=0;i<script.steps.length;i++){
+    const panel = document.createElement('div');
+    panel.className='story-panel';
+    panel.innerHTML = `<div class="story-num">Step ${i+1}</div><div class="art" id="art-${i}"></div><div class="cap">${escapeHtml(script.steps[i].caption)}</div>`;
+    strip.appendChild(panel);
+  }
+  loading.textContent = 'Illustrating each step with Gemini image generation…';
+
+  for(let i=0;i<script.steps.length;i++){
+    const artDiv = document.getElementById('art-'+i);
+    try{
+      if(typeof puter === 'undefined') throw new Error('no puter');
+      const styledPrompt = `Simple flat pastel illustration, minimal lines, calm and uncluttered, no text or letters anywhere in the image: ${script.steps[i].image_prompt}`;
+      const url = await puterImage(styledPrompt);
+      if(url){
+        const img = document.createElement('img');
+        img.src = url; img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover';
+        artDiv.appendChild(img);
+      } else {
+        artDiv.innerHTML = localArt(i);
+      }
+    } catch(e){
+      artDiv.innerHTML = localArt(i);
+    }
+  }
+  loading.textContent = '';
+}
+
+function localSocialStory(situation, tone){
+  return {
+    title: 'Getting ready',
+    steps: [
+      {caption:`Sometimes situations like "${situation}" happen, and that's okay.`, image_prompt:'a calm sunrise over simple hills'},
+      {caption:'I can notice how my body feels and that gives me useful information.', image_prompt:'a person with a hand on their chest, calm pose'},
+      {caption:'I have tools I can use, like taking a breath or asking for a quiet space.', image_prompt:'a simple breathing exercise icon, circles'},
+      {caption:'When it is over, I did something hard, and that is worth noticing.', image_prompt:'a simple checkmark with a small star'}
+    ]
+  };
+}
+function localArt(i){
+  const colors = ['#EAF4EE','#FBF0E1','#F1EEFA','#FBEAE3'];
+  return `<svg viewBox="0 0 100 100" width="100%" height="100%"><rect width="100" height="100" fill="${colors[i%4]}"/><circle cx="50" cy="42" r="18" fill="#2F6F63" opacity="0.25"/><rect x="30" y="65" width="40" height="10" rx="5" fill="#D98E4A" opacity="0.4"/></svg>`;
+}
+
+/* =========================================================
+   04 — BATTERY
+========================================================= */
+function logBattery(v){
+  batteryLog.push({t: Date.now(), v});
+  const tip = document.getElementById('batteryTip');
+  if(v<=2) tip.textContent = 'Logged. Low battery is worth honoring — even small reductions in input help.';
+  else if(v>=4) tip.textContent = 'Logged. Good time to tackle something that needs more capacity, if you want to.';
+  else tip.textContent = 'Logged. Steady — worth another check-in in a bit.';
+  drawBatteryChart();
+  recomputeInsights();
+}
+function drawBatteryChart(){
+  const svg = document.getElementById('batteryChart');
+  const w=300,h=120,pad=14;
+  const pts = batteryLog.slice(-10);
+  if(pts.length===0){ svg.innerHTML = `<text x="10" y="65" fill="#5C6B68" font-size="12" font-family="IBM Plex Mono, monospace">No check-ins yet</text>`; return; }
+  const stepX = pts.length>1 ? (w-2*pad)/(pts.length-1) : 0;
+  const coords = pts.map((p,i)=>{ const x=pad+i*stepX; const y=h-pad-((p.v-1)/4)*(h-2*pad); return [x,y]; });
+  const path = coords.map((c,i)=> (i===0?'M':'L')+c[0].toFixed(1)+','+c[1].toFixed(1)).join(' ');
+  const dots = coords.map(c=>`<circle cx="${c[0].toFixed(1)}" cy="${c[1].toFixed(1)}" r="3.5" fill="#D98E4A"/>`).join('');
+  svg.innerHTML = `<path d="${path}" fill="none" stroke="#2F6F63" stroke-width="2"/>${dots}`;
+}
+
+/* =========================================================
+   04 — REHEARSAL SIMULATOR: partner model + independent coach model
+========================================================= */
+function resetRehearsal(){
+  rehearsal.turns = [];
+  renderTranscript();
+}
+
+function renderTranscript(){
+  const box = document.getElementById('transcript');
+  box.innerHTML = '';
+  if(rehearsal.turns.length===0){
+    box.innerHTML = `<span style="color:var(--muted);font-size:13.5px;font-style:italic;">Scenario: ${escapeHtml(rehearsal.scenario)}. Type your opening line below whenever you're ready.</span>`;
+    return;
+  }
+  rehearsal.turns.forEach(t=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'bubble-wrap ' + (t.role==='user' ? 'user-wrap' : '');
+    const b = document.createElement('div');
+    b.className = 'bubble ' + t.role;
+    b.textContent = t.text;
+    wrap.appendChild(b);
+    if(t.tip){
+      const tip = document.createElement('div');
+      tip.className = 'coach-tip';
+      tip.innerHTML = `<strong>Coach:</strong> ${escapeHtml(t.tip)}`;
+      wrap.appendChild(tip);
+    }
+    box.appendChild(wrap);
+  });
+  box.scrollTop = box.scrollHeight;
+}
+
+async function runRehearsalSend(){
+  const input = document.getElementById('rehearsalInput');
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = '';
+  rehearsal.turns.push({role:'user', text});
+  renderTranscript();
+  const loading = document.getElementById('rehearsalLoading');
+  loading.textContent = 'Partner is responding, coach is reviewing…';
+
+  const history = rehearsal.turns.map(t=> (t.role==='user'?'Them (practicing): ':'Partner: ')+t.text).join('\n');
+
+  try{
+    if(typeof puter === 'undefined') throw new Error('Puter.js not loaded');
+    const partnerPrompt = `You are roleplaying as the OTHER person in this scenario, for someone practicing a hard conversation: "${rehearsal.scenario}". Stay in character, be realistic but not cruel — a plausible, moderately reasonable reaction, not a pushover and not a caricature of difficulty. Keep replies to 1-3 sentences. Conversation so far:\n${history}\n\nRespond with ONLY your next line of dialogue, no labels, no quotes.`;
+    const coachPrompt = `You are a communication coach, invisible to the roleplay partner, watching only the practicing person's latest line in this scenario: "${rehearsal.scenario}". Their latest line: "${text}". In one short sentence, give one specific, encouraging, concrete piece of feedback (what worked, or one small adjustment) — never generic praise, never shaming. Respond ONLY as JSON: {"tip":"..."}`;
+
+    const [partnerResp, coachResp] = await Promise.all([
+      puter.ai.chat([{role:'user', content: partnerPrompt}], {model: MODEL_DRAFT}),
+      puterJSON(MODEL_REASON, coachPrompt)
+    ]);
+    const partnerText = getChatText(partnerResp).trim();
+    rehearsal.turns[rehearsal.turns.length-1].tip = coachResp.tip;
+    rehearsal.turns.push({role:'partner', text: partnerText});
+    setStatus('live');
+  } catch(err){
+    setStatus('demo');
+    rehearsal.turns[rehearsal.turns.length-1].tip = localCoachTip(text);
+    rehearsal.turns.push({role:'partner', text: localPartnerReply(text)});
+  } finally {
+    loading.textContent = '';
+    renderTranscript();
+  }
+}
+
+function localCoachTip(text){
+  if(/\?$/.test(text.trim())) return 'Asking directly like this makes it easy for the other person to give a clear answer.';
+  if(text.length < 25) return 'Short and clear — consider adding one sentence of context so the reason lands too.';
+  return 'You stated what you need plainly, which is easy to act on.';
+}
+function localPartnerReply(text){
+  const replies = [
+    "I hear you. Can you tell me a bit more about what would help?",
+    "Okay — I wasn't expecting that, but I appreciate you being direct with me.",
+    "That's fair. Let's figure out what works for both of us."
+  ];
+  return replies[Math.floor(Math.random()*replies.length)];
+}
+
+/* =========================================================
+   05 — SELF-ADVOCACY NOTE GENERATOR
+========================================================= */
+async function runAdvocacyLetter(){
+  const need = document.getElementById('advocacyInput').value.trim();
+  if(!need) return;
+  const audience = document.getElementById('advocacyAudience').value;
+  const tone = document.getElementById('advocacyTone').value;
+  const loading = document.getElementById('advocacyLoading');
+  const cols = document.getElementById('letterCols');
+  loading.textContent = 'Drafting…';
+  cols.style.display = 'none';
+
+  let result;
+  try{
+    if(typeof puter === 'undefined') throw new Error('Puter.js not loaded');
+    const prompt = `Write a self-advocacy message for a neurodivergent person explaining a need and making a concrete, reasonable ask. Audience: ${audience}. Tone: ${tone}. Do not over-explain, apologize excessively, or pathologize the person — state the need plainly and the ask clearly, in first person, keeping their authentic voice from this description: "${need}". Respond ONLY as JSON: {"short":"a 2-3 sentence version for a text or chat message","long":"a short email version with a greeting and sign-off, 5-8 sentences max"}`;
+    result = await puterJSON(MODEL_REASON, prompt);
+  } catch(err){
+    setStatus('demo');
+    result = localAdvocacyLetter(need, audience, tone);
+  } finally {
+    loading.textContent = '';
+  }
+  document.getElementById('letterShort').textContent = result.short;
+  document.getElementById('letterLong').textContent = result.long;
+  cols.style.display = 'grid';
+}
+
+function localAdvocacyLetter(need, audience, tone){
+  return {
+    short: `Hi — I wanted to flag something: ${need} Could we find a way to work with that?`,
+    long: `Hi,\n\nI wanted to reach out about something that affects how I work best. ${need}\n\nWould it be possible to talk through an adjustment that could help? I'm glad to work with you on what's practical.\n\nThanks for considering it.`
+  };
+}
+
+/* =========================================================
+   07 — INSIGHTS: real client-side stats on this session's own data
+========================================================= */
+function recomputeInsights(){
+  document.getElementById('statCheckins').textContent = batteryLog.length;
+  document.getElementById('statVocab').textContent = vocab.length;
+
+  const trendEl = document.getElementById('statTrend');
+  if(batteryLog.length < 2){ trendEl.textContent = '—'; }
+  else {
+    const recent = batteryLog.slice(-3).map(b=>b.v);
+    const prior = batteryLog.slice(-6,-3).map(b=>b.v);
+    const avg = arr => arr.reduce((a,b)=>a+b,0)/arr.length;
+    if(prior.length===0){ trendEl.textContent = avg(recent) >= 3 ? '↑ steady' : '↓ low'; }
+    else {
+      const d = avg(recent) - avg(prior);
+      trendEl.textContent = d > 0.3 ? '↑ rising' : d < -0.3 ? '↓ falling' : '→ flat';
+    }
+  }
+
+  const notes = [];
+  if(batteryLog.length >= 4){
+    const values = batteryLog.map(b=>b.v);
+    const mean = values.reduce((a,b)=>a+b,0)/values.length;
+    const sd = Math.sqrt(values.reduce((a,b)=>a+(b-mean)**2,0)/values.length) || 1;
+    const latest = values[values.length-1];
+    const z = (latest-mean)/sd;
+    if(Math.abs(z) >= 1.2){
+      notes.push(`Your latest battery check-in (${latest}/5) is ${z<0?'notably lower':'notably higher'} than your session average (${mean.toFixed(1)}/5) — a ${Math.abs(z).toFixed(1)}σ shift.`);
+    }
+  }
+  if(vocab.length >= 1 && batteryLog.length >= 1){
+    const windowMs = 10*60*1000;
+    vocab.forEach(v=>{
+      const nearbyLow = batteryLog.find(b => Math.abs(b.t - v.t) <= windowMs && b.v <= 2);
+      if(nearbyLow){
+        notes.push(`"${v.word}" was confirmed within 10 minutes of a low battery check-in (${nearbyLow.v}/5) — worth watching if that pattern repeats.`);
+      }
+    });
+  }
+  const notesEl = document.getElementById('insightNotes');
+  notesEl.innerHTML = notes.length
+    ? notes.map(n=>`<div class="insight-note">${escapeHtml(n)}</div>`).join('')
+    : '<span class="insight-empty">Log a few battery check-ins and confirm an emotion or two to see patterns appear here.</span>';
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+init();
+</script>
+</body>
+</html>
